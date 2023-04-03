@@ -1,25 +1,51 @@
 #include"seamcarving.h"
+#include<math.h>
 
 void calc_energy(struct rgb_img *im, struct rgb_img **grad)
 /*
 Compute the dual-gradient energy function and place it in the struct rgb_img *grad.
 */
 {
-int y, x, xp1, xm1, yp1, ym1;// xp1 = 'x plus 1', xm1 = 'x minus 1' to deal with "wrapping around"
-uint8_t r_x, r_y, g_x, g_y, b_x, b_y; 
-//R_x(y, x) = (y, x+1)_red - (y, x-1)_red
-r_x = get_pixel(im, y, xp1, 0) - get_pixel(im, y, xm1, 0);
-g_x = get_pixel(im, y, xp1, 1) - get_pixel(im, y, xm1, 0);
-b_x = get_pixel(im, y, xp1, 2) - get_pixel(im, y, xm1, 0);
+    int width, height, y, x, xp1, xm1, yp1, ym1, r_x, r_y, g_x, g_y, b_x, b_y; 
+    // xp1 = 'x plus 1', xm1 = 'x minus 1' to deal with "wrapping around"
+    width = im->width;
+    height = im->height;
+    create_img(grad, height, width); //assume **grad is null pointer?
+    for(x = 0; x < width; x++){
+        for(y = 0; y < height; y++){
+            xp1 = x+1;
+            xm1 = x-1;
+            yp1 = y+1;
+            ym1 = y-1;
+            
+            //wrapping around
+            if(x == width-1) xp1 = 0; 
+            if(x == 0) xm1 = (width-1);
+            if(y == height-1) yp1 = 0;
+            if(y == 0) ym1 = (height-1);
+            
+            //R_x(y, x) = (y, x+1)_red - (y, x-1)_red
+            r_x = (int)get_pixel(im, y, xp1, 0) - (int)get_pixel(im, y, xm1, 0);
+            g_x = (int)get_pixel(im, y, xp1, 1) - (int)get_pixel(im, y, xm1, 1);
+            b_x = (int)get_pixel(im, y, xp1, 2) - (int)get_pixel(im, y, xm1, 2);
 
-//R_y(y, x) = (y+1, x)_red - (y-1, x)_red
-r_y = get_pixel(im, yp1, x, 0)- get_pixel(im, ym1, x, 0);
-g_y = get_pixel(im, yp1, x, 1)- get_pixel(im, ym1, x, 0);
-b_y = get_pixel(im, yp1, x, 2)- get_pixel(im, ym1, x, 0);
+            //R_y(y, x) = (y+1, x)_red - (y-1, x)_red
+            r_y = (int)get_pixel(im, yp1, x, 0)- (int)get_pixel(im, ym1, x, 0);
+            g_y = (int)get_pixel(im, yp1, x, 1)- (int)get_pixel(im, ym1, x, 1);
+            b_y = (int)get_pixel(im, yp1, x, 2)- (int)get_pixel(im, ym1, x, 2);
 
-//put it together: \delta^{2}_{x} \(y, x\) = (r_x)^2 + (b_x)^2 + (g_x)^2
-int d2x = ((int)r_x)*((int)r_x) + ((int)b_x)*((int)b_x) + ((int)g_x)*((int)g_x); 
-//uint8_t will definitely not work here for d2x; using int instead. Also too lazy too get pow() function from math library... maybe I should not be lazy... gonna go eat dinner now brb lol.
+            //put it together: \delta^{2}_{x} \(y, x\) = (r_x)^2 + (b_x)^2 + (g_x)^2
+            long int d2x = (r_x)*(r_x) + (b_x)*(b_x) + (g_x)*(g_x); 
+            long int d2y = (r_y)*(r_y) + (b_y)*(b_y) + (g_y)*(g_y); 
+            //uint8_t will definitely not work here for d2x; using int instead. Also too lazy too get pow() function from math library... maybe I should not be lazy...
+            double energy = sqrt((double)(d2x + d2y)); //the irony of using the math.h library on the line directly below...
+
+            uint8_t energy_to_store = (uint8_t)(energy/1.0);
+            set_pixel(*grad, y, x, energy_to_store, energy_to_store, energy_to_store);
+        }
+    }
+    
+    
 
 }
 
