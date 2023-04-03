@@ -40,7 +40,7 @@ Compute the dual-gradient energy function and place it in the struct rgb_img *gr
             //uint8_t will definitely not work here for d2x; using int instead. Also too lazy too get pow() function from math library... maybe I should not be lazy...
             double energy = sqrt((double)(d2x + d2y)); //the irony of using the math.h library on the line directly below...
 
-            uint8_t energy_to_store = (uint8_t)(energy/1.0);
+            uint8_t energy_to_store = (uint8_t)(energy/10.0);
             set_pixel(*grad, y, x, energy_to_store, energy_to_store, energy_to_store);
         }
     }
