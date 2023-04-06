@@ -115,5 +115,14 @@ void remove_seam(struct rgb_img *src, struct rgb_img **dest, int *path)
 The function creates the destination image, and writes to it the source image, with the seam removed.
 */
 {
-
+    create_img(dest, src->height, src->width-1);
+    for(int y = 0; y < src->height; y++){
+        int offset = 0; // offset works as built in boolean; 0 means before seam, 1 means after seam
+        for(int x = 0; x < src->width-1; x++){
+            if (x == path[y]){
+                offset = 1;
+            }
+            set_pixel(*dest, y, x, get_pixel(src, y, x+offset, 0), get_pixel(src, y, x+offset, 1), get_pixel(src, y, x+offset, 2));
+        }
+    }
 }
