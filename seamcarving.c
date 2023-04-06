@@ -56,6 +56,39 @@ Allocates and computes the dunamic array *best_arr.
 */
 {
 
+    *best_arr = (double *)malloc(sizeof(double)*grad->width*grad->height); //allocate memory for best_arr
+        
+    int cur_min;
+    for (int i = 0; i <  grad->height; i++){  // loop through rows
+
+        for (int j = 0; j < grad->width; j++){ // loop through columns
+
+            if (i == 0){  // the cost of the first row is just the energy of the pixel
+                (*best_arr)[i*grad->width+j] = (double)get_pixel(grad, i, j, 0);
+            }
+            else{  // the cost of the rest of the rows is the energy of the pixel + the minimum cost of the previous row
+
+                if (j == 0){  // if we are at the left edge, we only need to consider the pixel above and to the right
+                    cur_min = min((*best_arr)[(i-1)*grad->width+j+1], (*best_arr)[(i-1)*grad->width+j]);
+                }
+                else if (j == grad->width-1){  // if we are at the right edge, we only need to consider the pixel above and to the left
+                    cur_min = min((*best_arr)[(i-1)*grad->width+j-1], (*best_arr)[(i-1)*grad->width+j]);
+                }
+                else{  // otherwise, we need to consider the pixel to the left, the pixel to the right, and the pixel directly above
+                    cur_min = (*best_arr)[(i-1)*grad->width+j-1];
+                    if ((*best_arr)[(i-1)*grad->width+j] < cur_min){
+                        cur_min = (*best_arr)[(i-1)*grad->width+j];
+                    }
+                    if ((*best_arr)[(i-1)*grad->width+j+1] < cur_min){
+                        cur_min = (*best_arr)[(i-1)*grad->width+j+1];
+                    }
+                }
+                (*best_arr)[i*grad->width+j] = (double)get_pixel(grad, i, j, 0) + (double)cur_min;
+            }
+        }
+            
+    }
+
 }
 
 void recover_path(double *best, int height, int width, int **path)
@@ -71,5 +104,9 @@ void remove_seam(struct rgb_img *src, struct rgb_img **dest, int *path)
 The function creates the destination image, and writes to it the source image, with the seam removed.
 */
 {
+
+}
+
+int main(){
 
 }
