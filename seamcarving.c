@@ -117,7 +117,7 @@ This function allocates a path through the minimum seam as defined by the array 
         }
     }
     (*path)[height] = x_ind;
-    for (int y = height-1; y>0; y--){
+    for (int y = height-1; y>-1; y--){
         double cur_min = 0.0;
         int next_x_ind;
         if (x_ind != 0){
