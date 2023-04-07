@@ -110,66 +110,37 @@ void recover_path(double *best, int height, int width, int **path)
 This function allocates a path through the minimum seam as defined by the array best.
 */
 {
-    *path = (int *)malloc(sizeof(int)*height); //allocate memory for path
-
-    // loop through rows from bottom to top
-    int i, j;
-    double best_path;
-    i = height-1;  
-    while (i >= 0){
-        if (i == height-1){    // if we are at the bottom row, we need to find the minimum value in the last row
-            for (j = 0; j < width; i++){
-                if(i==0){
-                    best_path = best[(height-1)*width+i];
-                    (*path)[height-1] = j;
-
-                }
-                else if (best[(height-1)*width+i] < best_path){
-                    (*path)[height-1] = j;
-                }
-            }
-
+    *path = malloc(sizeof(int)*height); // an array of integers thats height long since the seam is as long as the height
+    int x_ind = 0;
+    double lowest = best[(width)*(height-1)];
+    for(int x = 0; x<width; x++){ //find the starting seam by finding the lowest value at the bottomost row
+        if(best[width*(height-1)+x] < lowest){
+            lowest = best[width*(height-1)+x];
+            x_ind = x;
         }
-        
-        else{
-
-            j = ((*path)[i+1])%width;  // j is the column of the current pixel
-
-            if (j == 0){  // if we are at the left edge, we only need to consider the pixel above and to the right
-                if (best[(i)*width+j+1] > best[(i)*width+j]){
-                    best_path = best[(i-1)*width+j];
-                    (*path)[i] = j;
-                }
-                else{
-                    best_path = best[(i-1)*width+j+1];
-                    (*path)[i] = j+1;
-                }
-            }
-
-            else if (j == width-1){  // if we are at the right edge, we only need to consider the pixel above and to the left
-                if (best[(i-1)*width+j-1] > best[(i-1)*width+j]){
-                    best_path = best[(i-1)*width+j];
-                    (*path)[i] = j;
-                }
-                else{
-                    best_path = best[(i-1)*width+j-1];
-                    (*path)[i] = j-1;
-                }
-            }
-
-            else{  // otherwise, we need to consider the pixel to the left, the pixel to the right, and the pixel directly above
-                best_path = best[(i-1)*width+j-1];
-                (*path)[i] = j-1;
-                if (best[(i-1)*width+j] < best_path){
-                    best_path = best[(i-1)*width+j];
-                    (*path)[i] = j;
-                }
-                if (best[(i-1)*width+j+1] < best_path){
-                    best_path = best[(i-1)*width+j+1];
-                    (*path)[i] = j+1;
-                }
-            }
+    }
+    (*path)[height] = x_ind;
+    for (int y = height-1; y>-1; y--){
+        double cur_min = 0.0;
+        int next_x_ind;
+        if (x_ind != 0){
+            cur_min = best[width*y+ x_ind - 1];
+            next_x_ind = x_ind-1;
+        } else {
+            cur_min = best[width*y + x_ind];
+            next_x_ind = x_ind;
         }
+        if (cur_min > best[width*y + x_ind]){
+            cur_min = best[width*y + x_ind];
+            next_x_ind = x_ind;
+        }
+        if (x_ind != width-1 && best[width*y + x_ind + 1] < cur_min){
+            cur_min = best[width*y + x_ind + 1];
+            next_x_ind = x_ind+1;
+        }
+        x_ind = next_x_ind;
+        lowest = cur_min;
+        (*path)[y] = x_ind;
     }
 }
 
