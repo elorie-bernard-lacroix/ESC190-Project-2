@@ -107,7 +107,38 @@ void recover_path(double *best, int height, int width, int **path)
 This function allocates a path through the minimum seam as defined by the array best.
 */
 {
-
+    *path = malloc(sizeof(int)*height); // an array of integers thats height long since the seam is as long as the height
+    int x_ind = 0;
+    double lowest = best[(width)*(height-1)];
+    for(int x = 0; x<width; x++){ //find the starting seam by finding the lowest value at the bottomost row
+        if(best[width*(height-1)+x] < lowest){
+            lowest = best[width*(height-1)+x];
+            x_ind = x;
+        }
+    }
+    (*path)[height] = x_ind;
+    for (int y = height-1; y>0; y--){
+        double cur_min = 0.0;
+        int next_x_ind;
+        if (x_ind != 0){
+            cur_min = best[width*y+ x_ind - 1];
+            next_x_ind = x_ind-1;
+        } else {
+            cur_min = best[width*y + x_ind];
+            next_x_ind = x_ind;
+        }
+        if (cur_min > best[width*y + x_ind]){
+            cur_min = best[width*y + x_ind];
+            next_x_ind = x_ind;
+        }
+        if (x_ind != width-1 && best[width*y + x_ind + 1] < cur_min){
+            cur_min = best[width*y + x_ind + 1];
+            next_x_ind = x_ind+1;
+        }
+        x_ind = next_x_ind;
+        lowest = cur_min;
+        (*path)[y] = x_ind;
+    }
 }
 
 void remove_seam(struct rgb_img *src, struct rgb_img **dest, int *path)

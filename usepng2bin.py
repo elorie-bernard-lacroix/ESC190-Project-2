@@ -7,7 +7,7 @@ if __name__ == '__main__':
     #png2bin.write_image(im2, "HJoceanSmall.bin") # write the image to a bin file
 
     
-    im = png2bin.read_image("HJoceanSmallEnergy.bin") # read a bin image using png2bin
+    im = png2bin.read_image("fingerscrossed.bin") # read a bin image using png2bin
     im.show() # display the image
 
     
